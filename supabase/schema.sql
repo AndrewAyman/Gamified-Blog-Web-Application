@@ -1,12 +1,7 @@
--- ============================================================
--- XP BLOG — COMPLETE SUPABASE SCHEMA
--- Run this in Supabase SQL Editor (Dashboard → SQL Editor)
--- ============================================================
-
--- ─── EXTENSIONS ──────────────────────────────────────────────
+-- EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- ─── PROFILES TABLE ─────────────────────────────────────────
+-- PROFILES TABLE
 CREATE TABLE IF NOT EXISTS public.profiles (
   id                UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email             TEXT,
@@ -24,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at        TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── POSTS TABLE ─────────────────────────────────────────────
+-- POSTS TABLE
 CREATE TABLE IF NOT EXISTS public.posts (
   id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id         UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -38,7 +33,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── COMMENTS TABLE ──────────────────────────────────────────
+-- COMMENTS TABLE
 CREATE TABLE IF NOT EXISTS public.comments (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id     UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -47,7 +42,7 @@ CREATE TABLE IF NOT EXISTS public.comments (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── LIKES TABLE ─────────────────────────────────────────────
+-- LIKES TABLE
 CREATE TABLE IF NOT EXISTS public.likes (
   id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id    UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -56,7 +51,7 @@ CREATE TABLE IF NOT EXISTS public.likes (
   UNIQUE(user_id, post_id)
 );
 
--- ─── BADGES TABLE ────────────────────────────────────────────
+-- BADGES TABLE
 CREATE TABLE IF NOT EXISTS public.badges (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name        TEXT UNIQUE NOT NULL,
@@ -68,7 +63,7 @@ CREATE TABLE IF NOT EXISTS public.badges (
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
--- ─── USER BADGES TABLE ───────────────────────────────────────
+-- USER BADGES TABLE
 CREATE TABLE IF NOT EXISTS public.user_badges (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id     UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -77,7 +72,7 @@ CREATE TABLE IF NOT EXISTS public.user_badges (
   UNIQUE(user_id, badge_id)
 );
 
--- ─── USER MISSIONS TABLE ─────────────────────────────────────
+-- USER MISSIONS TABLE
 CREATE TABLE IF NOT EXISTS public.user_missions (
   id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id      UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -88,7 +83,7 @@ CREATE TABLE IF NOT EXISTS public.user_missions (
   UNIQUE(user_id, mission_id)
 );
 
--- ─── INDEXES ─────────────────────────────────────────────────
+-- INDEXES
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON public.posts(user_id);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON public.posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_posts_likes_count ON public.posts(likes_count DESC);
@@ -101,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_profiles_points ON public.profiles(points DESC);
 CREATE INDEX IF NOT EXISTS idx_user_badges_user_id ON public.user_badges(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_missions_user_id ON public.user_missions(user_id);
 
--- ─── ROW LEVEL SECURITY ──────────────────────────────────────
+-- ROW LEVEL SECURITY
 ALTER TABLE public.profiles     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments     ENABLE ROW LEVEL SECURITY;
@@ -187,7 +182,7 @@ CREATE POLICY "Users can update own missions"
   ON public.user_missions FOR UPDATE
   USING (auth.uid() = user_id);
 
--- ─── HELPER FUNCTIONS ────────────────────────────────────────
+-- HELPER FUNCTIONS
 
 -- Increment points
 CREATE OR REPLACE FUNCTION increment_points(uid UUID, amount INTEGER)
@@ -277,7 +272,7 @@ CREATE TRIGGER posts_updated_at
   BEFORE UPDATE ON public.posts
   FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
--- ─── SEED: BADGES ────────────────────────────────────────────
+-- SEED: BADGES
 INSERT INTO public.badges (name, description, icon, color, condition, secret) VALUES
   ('First Post',       'Published your first blog post',         '✍️', '#00d4ff', 'posts_created >= 1',      false),
   ('Prolific Writer',  'Published 10 blog posts',                '📚', '#7c3aed', 'posts_created >= 10',     false),
@@ -290,7 +285,7 @@ INSERT INTO public.badges (name, description, icon, color, condition, secret) VA
   ('Speed Writer',     'Published 3 posts in a single day',      '⚡', '#ffd60a', 'posts_in_day >= 3',       true)
 ON CONFLICT (name) DO NOTHING;
 
--- ─── STORAGE BUCKET ──────────────────────────────────────────
+-- STORAGE BUCKET
 -- Run in Supabase Dashboard → Storage → Create bucket "post-images"
 -- Or run this in SQL (requires storage extension):
 
