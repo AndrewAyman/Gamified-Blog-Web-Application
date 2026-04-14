@@ -1,8 +1,3 @@
--- ============================================================
--- Run this in Supabase → SQL Editor → New Query → Run
--- These functions are called by the app but may be missing
--- ============================================================
-
 -- Increment posts_created
 CREATE OR REPLACE FUNCTION increment_posts_created(uid UUID)
 RETURNS VOID AS $$
