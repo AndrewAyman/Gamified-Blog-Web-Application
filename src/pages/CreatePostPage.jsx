@@ -29,7 +29,7 @@ export default function CreatePostPage() {
   const handleSubmit = async ({ title, content, tags, imageFile }) => {
     setLoading(true)
     try {
-      // Step 1: Upload image (optional)
+      // Upload image (optional)
       let imageUrl = ''
       if (imageFile) {
         try {
@@ -40,7 +40,7 @@ export default function CreatePostPage() {
         }
       }
 
-      // Step 2: Insert the post
+      // Insert the post
       const { data: post, error: postError } = await supabase
         .from('posts')
         .insert({
@@ -58,7 +58,7 @@ export default function CreatePostPage() {
 
       if (postError) throw new Error(`Failed to save post: ${postError.message}`)
 
-      // Step 3: Award XP + update counters — all non-blocking, failures won't crash the page
+      // Award XP + update counters
       try {
         await awardXP(user.id, XP.CREATE_POST, 'Created a post')
       } catch (e) { console.warn('awardXP failed:', e) }
@@ -67,7 +67,7 @@ export default function CreatePostPage() {
         await supabase.rpc('increment_posts_created', { uid: user.id })
       } catch (e) { console.warn('increment_posts_created failed:', e) }
 
-      // Step 4: Night Owl badge check (silent)
+      // Night Owl badge check
       try {
         const hour = new Date().getHours()
         if (hour >= 0 && hour < 5) {
@@ -82,7 +82,7 @@ export default function CreatePostPage() {
         }
       } catch (e) { /* silent */ }
 
-      // Step 5: Show reward and navigate
+      // Show reward and navigate
       showXP(XP.CREATE_POST, window.innerWidth / 2, 200)
       toast.success(`🚀 Post published! +${XP.CREATE_POST} XP`)
 
@@ -92,7 +92,7 @@ export default function CreatePostPage() {
     } catch (err) {
       console.error('CreatePost error:', err)
       toast.error(err.message || 'Failed to create post. Please try again.')
-      setLoading(false)  // Only reset on error; navigation handles success case
+      setLoading(false)  // Only reset on error. navigation handles success case
     }
   }
 
