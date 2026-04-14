@@ -15,8 +15,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    storageKey: 'xpblog-auth-token',  // unique key prevents cross-tab lock fights
-    flowType: 'implicit',              // avoids PKCE lock contention
+    storageKey: 'xpblog-auth-token', 
+    flowType: 'implicit',           
   },
   global: {
     headers: { 'x-app-name': 'xpblog' },
